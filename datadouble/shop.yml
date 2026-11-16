@@ -1,0 +1,33 @@
+# Copyright (c) 2026- Tight Line LLC
+# SPDX-License-Identifier: MIT
+
+# A shop's Datadouble spec: the first fifty customers and their orders, with
+# names and emails replaced, signed, promoted to an export store, and copied
+# on demand for each pull request. Secrets are named by environment variable.
+name: shop
+source:
+  engine: postgres
+  connection: {dsn: {env: SHOP_SOURCE_DSN}}
+runtime: {docker: {network: example-pipeline}}
+subset:
+  seeds: {customer: "id <= 50"}
+  follow: {down: [customer -> orders]}
+anonymize:
+  customer:
+    name: {faker: name}
+    email: {faker: email, unique: true}
+verify:
+  assertions:
+    - name: every order has its customer
+      sql: "SELECT 1 FROM orders o LEFT JOIN customer c ON c.id = o.customer_id WHERE c.id IS NULL"
+store: [{filesystem: {path: /var/tmp/example-pipeline/store}}]
+signing: {cosign: {key: {env: SHOP_COSIGN_KEY}}}
+trust: {cosign: {public_key: {env: SHOP_COSIGN_PUB}}}
+promote: {to: [{filesystem: {path: /var/tmp/example-pipeline/export}}]}
+fetch:
+  from: {filesystem: {path: /var/tmp/example-pipeline/export}}
+  staging: /var/tmp/example-pipeline/staging
+replicate:
+  using: {filesystem: {path: /var/tmp/example-pipeline/copies}}
+  mode: on-demand
+  size: 1

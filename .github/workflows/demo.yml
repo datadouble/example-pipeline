@@ -1,0 +1,42 @@
+# Copyright (c) 2026- Tight Line LLC
+# SPDX-License-Identifier: MIT
+
+# The demo, on every push and every night: the pipeline's workflows, run with
+# act on this machine as self-hosted runners would run them.
+name: Demo
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "30 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  demo:
+    name: The whole pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install act
+        env:
+          ACT_VERSION: 0.2.97
+        run: |
+          base="https://github.com/nektos/act/releases/download/v${ACT_VERSION}"
+          file="act_Linux_x86_64.tar.gz"
+          curl -fsSLO "${base}/${file}"
+          curl -fsSLO "${base}/checksums.txt"
+          grep " ${file}\$" checksums.txt | sha256sum --check
+          tar xzf "${file}" act
+          sudo install act /usr/local/bin/
+
+      - name: Run the demo
+        run: make demo
