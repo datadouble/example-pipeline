@@ -46,7 +46,7 @@ step "A throwaway source and the spec's directories"
 password=$(openssl rand -hex 16)
 docker network create --subnet 172.30.1.0/24 "$network" > /dev/null
 POSTGRES_PASSWORD=$password docker run --detach --name example-pipeline-source \
-    --network "$network" --ip 172.30.1.10 --env POSTGRES_PASSWORD postgres:18.4-trixie > /dev/null
+    --network "$network" --ip 172.30.1.10 --env POSTGRES_PASSWORD pgvector/pgvector:0.8.7-pg18-trixie > /dev/null
 docker exec example-pipeline-source timeout 60 sh -c \
     'until pg_isready --quiet --host 127.0.0.1 --username postgres; do sleep 1; done'
 docker exec --interactive example-pipeline-source \

@@ -1,16 +1,19 @@
 # Copyright (c) 2026- Tight Line LLC
 # SPDX-License-Identifier: MIT
 
-# A shop's Datadouble spec: the first fifty customers and their orders, with
-# names and emails replaced, signed, promoted to an export store, and copied
-# on demand for each pull request. Secrets are named by environment variable.
+# A shop's Datadouble spec: the first fifty customers and their orders, and
+# every product, with names and emails replaced, signed, promoted to an export
+# store, and copied on demand for each pull request. Secrets are named by
+# environment variable. The source uses the pgvector extension, which the
+# official PostgreSQL image lacks, so the working image is pgvector's.
 name: shop
 source:
   engine: postgres
   connection: {dsn: {env: SHOP_SOURCE_DSN}}
+  image: pgvector/pgvector:0.8.7-pg18-trixie
 runtime: {docker: {network: example-pipeline}}
 subset:
-  seeds: {customer: "id <= 50"}
+  seeds: {customer: "id <= 50", product: "true"}
   follow: {down: [customer -> orders]}
 anonymize:
   customer:

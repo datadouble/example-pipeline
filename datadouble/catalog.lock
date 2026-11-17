@@ -1,6 +1,13 @@
 {
   "catalog": {
     "engine": "postgres",
+    "requirements": [
+      {
+        "kind": "extension",
+        "name": "vector",
+        "version": "0.8.7"
+      }
+    ],
     "tables": [
       {
         "columns": [
@@ -75,9 +82,39 @@
         "primary_key": [
           "id"
         ]
+      },
+      {
+        "columns": [
+          {
+            "kind": "integer",
+            "name": "id",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "kind": "text",
+            "name": "name",
+            "nullable": false,
+            "type": "text"
+          },
+          {
+            "kind": "other",
+            "name": "embedding",
+            "nullable": true,
+            "type": "public.vector(3)"
+          }
+        ],
+        "foreign_keys": [],
+        "name": {
+          "name": "product",
+          "namespace": "public"
+        },
+        "primary_key": [
+          "id"
+        ]
       }
     ]
   },
-  "fingerprint": "sha256:6434f980b2ebabb8e0d2dc0cab00f7ce430967d22f6ce92021d188dadd5ba3a8",
+  "fingerprint": "sha256:6e76ddbec58fe49f8440d94ecb7a03887b35a5fa9a0c493ffa7b1a333f214df2",
   "format": 1
 }

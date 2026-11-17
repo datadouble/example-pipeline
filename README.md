@@ -18,8 +18,8 @@ make demo
 
 | File | What it is |
 |---|---|
-| `datadouble/shop.yml` | The spec: the first fifty customers and their orders, names and emails replaced, signed, promoted to an export store, and one copy per pull request |
-| `datadouble/catalog.lock` | The source's catalog when the spec was written; a new table or column fails the plan until someone decides what to do with it (strict mode) |
+| `datadouble/shop.yml` | The spec: the first fifty customers and their orders, and every product, names and emails replaced, signed, promoted to an export store, and one copy per pull request |
+| `datadouble/catalog.lock` | The source's catalog when the spec was written, with the extensions it uses; a new table, column or extension fails the plan until someone decides what to do with it (strict mode) |
 | `.github/workflows/datadouble-shop-*.yml` | The jobs, written by `datadouble ci init`, never edited by hand |
 | `source/shop.sql` | The demo's throwaway source |
 | `scripts/demo.sh` | Runs the whole pipeline locally |
@@ -44,6 +44,25 @@ datadouble ci init --system github-actions --job fetch,provision,release,prune,a
 | prune (non-production) | non-production | daily |
 | activate | non-production | by hand, to roll back |
 
+## The extension
+
+The shop's `product` table stores embeddings in a pgvector `vector` column,
+so the source uses the `vector` extension. The lock records it at the
+source's version (0.8.7), and the spec's `source.image` names the pgvector
+image, built on the same PostgreSQL release as the source, for the working
+databases. Without that line the build would use the official
+`postgres:18.7-trixie` image, which has no pgvector, and stop before reading
+the source:
+
+```
+error: the working image lacks 1 requirement(s) of the source; name an image that has them in source.image, or leave them out with source.omit
+  source.image: extension vector is not in the working image
+```
+
+If the DBAs upgrade pgvector on the source, strict mode stops the next build
+until someone moves the image to the matching release and re-locks. See
+[Extensions, plugins and modules](https://datadouble.tightlinesoftware.com/using/source-requirements/).
+
 ## To use it for real
 
 - **Runners.** A self-hosted runner labelled `prod-db` inside the production
@@ -62,7 +81,8 @@ datadouble ci init --system github-actions --job fetch,provision,release,prune,a
 `make demo` needs Docker, git and [act](https://github.com/nektos/act). It
 builds the Datadouble image from a checkout of datadouble/datadouble
 (`DATADOUBLE_CHECKOUT`, or a clone of `DATADOUBLE_REF`, `main` by default) and
-tags it as the release the workflows pin; starts a throwaway PostgreSQL;
+tags it as the release the workflows pin; starts a throwaway PostgreSQL with
+pgvector;
 makes a signing key; then runs build, promote, fetch, a pull request's copy,
 its release, and both prunes, with act running each job on this machine as a
 self-hosted runner does. It removes everything it made when it finishes.
