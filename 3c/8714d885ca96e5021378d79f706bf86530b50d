@@ -1,0 +1,45 @@
+.github/workflows/datadouble-shop-activate.yml
+  s_ad63f2bf16b775::t_e3beff676f79f3 30
+.github/workflows/datadouble-shop-build.yml
+  s_ad63f2bf16b775::t_fdab5f20fdfe81 31
+.github/workflows/datadouble-shop-fetch.yml
+  s_ad63f2bf16b775::t_f6cd6338eac608 29
+.github/workflows/datadouble-shop-promote.yml
+  s_ad63f2bf16b775::t_bce1f87c4472aa 33
+.github/workflows/datadouble-shop-provision.yml
+  s_ad63f2bf16b775::t_b619c227b72ec5 29
+.github/workflows/datadouble-shop-prune-non-production.yml
+  s_ad63f2bf16b775::t_d31a5bf99d5f6c 33
+.github/workflows/datadouble-shop-prune-production.yml
+  s_ad63f2bf16b775::t_4aa737bf7e03b9 33,49
+.github/workflows/datadouble-shop-release.yml
+  s_ad63f2bf16b775::t_282aca997daae3 32,49
+.github/workflows/demo.yml
+  s_ad63f2bf16b775::t_73af2089b3fb5b 5-6
+README.md
+  s_ad63f2bf16b775::t_d60ed3c3060b0c 81-101
+datadouble/catalog.lock
+  s_ad63f2bf16b775::t_6492f84dc09b96 36-39,74-77,86-89,119-122,130
+datadouble/shop.yml
+  s_ad63f2bf16b775::t_378513277bd543 10-19,21-26,29-33,38-52,54-56,59-61
+scripts/demo.sh
+  s_ad63f2bf16b775::t_52ab676180b0f8 13-16,20-35
+scripts/runner.Dockerfile
+  s_ad63f2bf16b775::t_08034fa19f996f 1-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "3c8714d885ca96e5021378d79f706bf86530b50d",
+  "prompts": {},
+  "sessions": {
+    "s_ad63f2bf16b775": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b7695759-5257-4c98-b0c0-2e7c8cbc14ca",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Nick Marden <nick.marden@tightlinesoftware.com>"
+    }
+  }
+}
