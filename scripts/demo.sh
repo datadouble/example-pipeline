@@ -10,10 +10,28 @@
 # It builds the Datadouble image from a checkout of datadouble/datadouble
 # (DATADOUBLE_CHECKOUT, or a clone of DATADOUBLE_REF) and tags it as the
 # release the workflows pin, and points their action at the same checkout.
-# Needs Docker, git and act; everything it makes is under /var/tmp/example-pipeline
-# and removed at the end.
+# Needs Docker and git. It runs itself inside a Linux container that plays the
+# self-hosted runner (scripts/runner.Dockerfile, which has act), so it behaves
+# the same on Linux and macOS. Everything it makes is under
+# /var/tmp/example-pipeline, on the Docker host, and removed at the end.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+
+# The runner container sees the repository, the Docker socket and /var/tmp at
+# the same paths as the Docker host, because the jobs start containers that
+# mount those paths. On macOS the Docker host is Docker's Linux VM.
+if [ -z "${DEMO_RUNNER:-}" ]; then
+    docker build --quiet --tag example-pipeline-runner --file scripts/runner.Dockerfile scripts > /dev/null
+    mounts=(--volume "$PWD:$PWD")
+    if [ -n "${DATADOUBLE_CHECKOUT:-}" ]; then
+        DATADOUBLE_CHECKOUT=$(cd "$DATADOUBLE_CHECKOUT" && pwd)
+        mounts+=(--volume "$DATADOUBLE_CHECKOUT:$DATADOUBLE_CHECKOUT")
+    fi
+    exec docker run --rm --volume /var/run/docker.sock:/var/run/docker.sock \
+        --volume /var/tmp:/var/tmp "${mounts[@]}" --workdir "$PWD" \
+        --env DEMO_RUNNER=1 --env DATADOUBLE_CHECKOUT --env DATADOUBLE_REF \
+        example-pipeline-runner bash scripts/demo.sh
+fi
 
 base=/var/tmp/example-pipeline
 network=example-pipeline

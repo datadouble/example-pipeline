@@ -78,13 +78,26 @@ until someone moves the image to the matching release and re-locks. See
 
 ## Running it
 
-`make demo` needs Docker, git and [act](https://github.com/nektos/act). It
-builds the Datadouble image from a checkout of datadouble/datadouble
-(`DATADOUBLE_CHECKOUT`, or a clone of `DATADOUBLE_REF`, `main` by default) and
-tags it as the release the workflows pin; starts a throwaway PostgreSQL with
-pgvector;
-makes a signing key; then runs build, promote, fetch, a pull request's copy,
-its release, and both prunes, with act running each job on this machine as a
-self-hosted runner does. It removes everything it made when it finishes.
+`make demo` needs Docker, git and make. It works the same on Linux and on
+macOS.
+
+The demo runs inside a Linux container that plays the self-hosted runner
+(`scripts/runner.Dockerfile`). That container has
+[act](https://github.com/nektos/act) and the tools the jobs use, so you don't
+install them yourself.
+
+Inside it, the demo:
+
+1. builds the Datadouble image from a checkout of datadouble/datadouble
+   (`DATADOUBLE_CHECKOUT`, or a clone of `DATADOUBLE_REF`, `main` by default),
+   and tags it as the release the workflows pin;
+2. starts a throwaway PostgreSQL with pgvector;
+3. makes a signing key pair;
+4. runs build, promote, fetch, a pull request's copy, its release, and both
+   prunes, with act running each job as a self-hosted runner does.
+
+Everything it makes goes under `/var/tmp/example-pipeline` on the Docker host,
+and it removes all of it when it finishes. On macOS, the Docker host is
+Docker's Linux virtual machine, not your Mac.
 
 This repository's own CI runs `make demo` on every push and every night.
