@@ -33,7 +33,10 @@
         "foreign_keys": [],
         "name": {
           "name": "customer",
-          "namespace": "public"
+          "namespace": [
+            "postgres",
+            "public"
+          ]
         },
         "primary_key": [
           "id"
@@ -68,7 +71,10 @@
             "name": "orders_customer_id_fkey",
             "target": {
               "name": "customer",
-              "namespace": "public"
+              "namespace": [
+                "postgres",
+                "public"
+              ]
             },
             "target_columns": [
               "id"
@@ -77,7 +83,10 @@
         ],
         "name": {
           "name": "orders",
-          "namespace": "public"
+          "namespace": [
+            "postgres",
+            "public"
+          ]
         },
         "primary_key": [
           "id"
@@ -107,7 +116,10 @@
         "foreign_keys": [],
         "name": {
           "name": "product",
-          "namespace": "public"
+          "namespace": [
+            "postgres",
+            "public"
+          ]
         },
         "primary_key": [
           "id"
@@ -115,6 +127,6 @@
       }
     ]
   },
-  "fingerprint": "sha256:6e76ddbec58fe49f8440d94ecb7a03887b35a5fa9a0c493ffa7b1a333f214df2",
+  "fingerprint": "sha256:e4ab210cd27ffa9d80067954f7bc25b4cc242557fa1ff5ba524630dd26761de6",
   "format": 1
 }

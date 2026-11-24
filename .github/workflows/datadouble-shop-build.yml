@@ -28,6 +28,7 @@ jobs:
           SHOP_COSIGN_KEY: ${{ secrets.SHOP_COSIGN_KEY }}
           SHOP_SOURCE_DSN: ${{ secrets.SHOP_SOURCE_DSN }}
         with:
+          job: build
           image: ghcr.io/datadouble/datadouble:v0.0.0
           user: 999:999
           mounts: |

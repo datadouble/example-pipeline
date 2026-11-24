@@ -30,6 +30,7 @@ jobs:
       - name: datadouble prune
         uses: datadouble/datadouble/ci/github-actions@v0.0.0
         with:
+          job: prune
           image: ghcr.io/datadouble/datadouble:v0.0.0
           user: 999:999
           mounts: |

@@ -7,30 +7,57 @@
 # environment variable. The source uses the pgvector extension, which the
 # official PostgreSQL image lacks, so the working image is pgvector's.
 name: shop
-source:
-  engine: postgres
-  connection: {dsn: {env: SHOP_SOURCE_DSN}}
-  image: pgvector/pgvector:0.8.7-pg18-trixie
-runtime: {docker: {network: example-pipeline}}
+sources:
+  app:
+    engine: postgres
+    connection:
+      dsn:
+        env: SHOP_SOURCE_DSN
+    image: pgvector/pgvector:0.8.7-pg18-trixie
+runtime:
+  docker:
+    network: example-pipeline
 subset:
-  seeds: {customer: "id <= 50", product: "true"}
-  follow: {down: [customer -> orders]}
+  seeds:
+    customer: "id <= 50"
+    product: "true"
+  follow:
+    down:
+      - customer -> orders
 anonymize:
   customer:
-    name: {faker: name}
-    email: {faker: email, unique: true}
+    name:
+      faker: name
+    email:
+      faker: email
+      unique: true
 verify:
   assertions:
     - name: every order has its customer
       sql: "SELECT 1 FROM orders o LEFT JOIN customer c ON c.id = o.customer_id WHERE c.id IS NULL"
-store: [{filesystem: {path: /var/tmp/example-pipeline/store}}]
-signing: {cosign: {key: {env: SHOP_COSIGN_KEY}}}
-trust: {cosign: {public_key: {env: SHOP_COSIGN_PUB}}}
-promote: {to: [{filesystem: {path: /var/tmp/example-pipeline/export}}]}
+store:
+  - filesystem:
+      path: /var/tmp/example-pipeline/store
+signing:
+  cosign:
+    key:
+      env: SHOP_COSIGN_KEY
+trust:
+  cosign:
+    public_key:
+      env: SHOP_COSIGN_PUB
+promote:
+  to:
+    - filesystem:
+        path: /var/tmp/example-pipeline/export
 fetch:
-  from: {filesystem: {path: /var/tmp/example-pipeline/export}}
+  from:
+    filesystem:
+      path: /var/tmp/example-pipeline/export
   staging: /var/tmp/example-pipeline/staging
 replicate:
-  using: {filesystem: {path: /var/tmp/example-pipeline/copies}}
+  using:
+    filesystem:
+      path: /var/tmp/example-pipeline/copies
   mode: on-demand
   size: 1

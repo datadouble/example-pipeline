@@ -30,6 +30,7 @@ jobs:
         env:
           SHOP_COSIGN_PUB: ${{ secrets.SHOP_COSIGN_PUB }}
         with:
+          job: promote
           image: ghcr.io/datadouble/datadouble:v0.0.0
           user: 999:999
           mounts: |
