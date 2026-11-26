@@ -1,0 +1,11 @@
+# Copyright (c) 2026- Tight Line LLC
+# SPDX-License-Identifier: MIT
+
+# A micro size of shop.yml: everything in shop.yml, but five customers
+# instead of fifty, for copies that build and load in seconds. Its images are
+# filed under shop-micro, and it has its own lock, shop-micro.lock.
+extends: shop.yml
+name: shop-micro
+subset:
+  seeds:
+    customer: "id <= 5"

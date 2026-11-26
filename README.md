@@ -19,12 +19,15 @@ make demo
 | File | What it is |
 |---|---|
 | `datadouble/shop.yml` | The spec: the first fifty customers and their orders, and every product, names and emails replaced, signed, promoted to an export store, and one copy per pull request |
-| `datadouble/catalog.lock` | The source's catalog when the spec was written, with the extensions it uses; a new table, column or extension fails the plan until someone decides what to do with it (strict mode) |
-| `.github/workflows/datadouble-shop-*.yml` | The jobs, written by `datadouble ci init`, never edited by hand |
+| `datadouble/shop.lock` | The source's catalog when the spec was written, with the extensions it uses; a new table, column or extension fails the plan until someone decides what to do with it (strict mode) |
+| `datadouble/shop-micro.yml` | A micro size of the same copy: everything in `shop.yml`, but five customers instead of fifty (see [Sizes](#sizes)) |
+| `datadouble/shop-micro.lock` | The micro size's own lock |
+| `.github/workflows/datadouble-shop-*.yml` | The jobs for each size, written by `datadouble ci init`, never edited by hand |
 | `source/shop.sql` | The demo's throwaway source |
 | `scripts/demo.sh` | Runs the whole pipeline locally |
 
-The workflows came from two commands, one per side of the boundary:
+The workflows came from two commands for each spec, one per side of the
+boundary. For `shop.yml`:
 
 ```
 datadouble ci init --system github-actions --job build,promote,prune \
@@ -32,6 +35,9 @@ datadouble ci init --system github-actions --job build,promote,prune \
 datadouble ci init --system github-actions --job fetch,provision,release,prune,activate \
     --spec datadouble/shop.yml --runner staging
 ```
+
+The same two commands with `--spec datadouble/shop-micro.yml` wrote the
+`datadouble-shop-micro-*.yml` workflows.
 
 | Workflow | Side | Started by |
 |---|---|---|
@@ -43,6 +49,31 @@ datadouble ci init --system github-actions --job fetch,provision,release,prune,a
 | release | non-production | the pull request closing, and a daily sweep |
 | prune (non-production) | non-production | daily |
 | activate | non-production | by hand, to roll back |
+
+## Sizes
+
+`shop-micro.yml` is a smaller size of the same copy. It doesn't repeat
+`shop.yml`; it extends it and changes only what differs:
+
+```yaml
+extends: shop.yml
+name: shop-micro
+subset:
+  seeds:
+    customer: "id <= 5"
+```
+
+Datadouble merges the two files: `customer` gets the micro seed, and
+everything else, the `product` seed included, comes from `shop.yml`.
+`datadouble spec --spec datadouble/shop-micro.yml` prints the merged spec. The
+micro size's images are filed under `shop-micro`, so they never mix with
+`shop`'s.
+
+Each spec has its own lock, named after it: `shop.lock` and
+`shop-micro.lock`. Both read the same source, so today the two locks are the
+same, but each is reviewed and re-locked on its own. Each spec also has its
+own set of workflows, and the demo runs both. See
+[Spec sizes](https://datadouble.tightlinesoftware.com/using/spec-sizes/).
 
 ## The extension
 
@@ -93,8 +124,9 @@ Inside it, the demo:
    and tags it as the release the workflows pin;
 2. starts a throwaway PostgreSQL with pgvector;
 3. makes a signing key pair;
-4. runs build, promote, fetch, a pull request's copy, its release, and both
-   prunes, with act running each job as a self-hosted runner does.
+4. for each size, `shop` and then `shop-micro`, runs build, promote, fetch,
+   a pull request's copy, its release, and both prunes, with act running each
+   job as a self-hosted runner does.
 
 Everything it makes goes under `/var/tmp/example-pipeline` on the Docker host,
 and it removes all of it when it finishes. On macOS, the Docker host is

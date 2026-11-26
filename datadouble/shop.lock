@@ -1,0 +1,132 @@
+{
+  "catalog": {
+    "engine": "postgres",
+    "requirements": [
+      {
+        "kind": "extension",
+        "name": "vector",
+        "version": "0.8.7"
+      }
+    ],
+    "tables": [
+      {
+        "columns": [
+          {
+            "kind": "integer",
+            "name": "id",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "kind": "text",
+            "name": "name",
+            "nullable": false,
+            "type": "text"
+          },
+          {
+            "kind": "text",
+            "name": "email",
+            "nullable": false,
+            "type": "text"
+          }
+        ],
+        "foreign_keys": [],
+        "name": {
+          "name": "customer",
+          "namespace": [
+            "postgres",
+            "public"
+          ]
+        },
+        "primary_key": [
+          "id"
+        ]
+      },
+      {
+        "columns": [
+          {
+            "kind": "integer",
+            "name": "id",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "kind": "integer",
+            "name": "customer_id",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "kind": "decimal",
+            "name": "total",
+            "nullable": true,
+            "type": "numeric"
+          }
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "customer_id"
+            ],
+            "name": "orders_customer_id_fkey",
+            "target": {
+              "name": "customer",
+              "namespace": [
+                "postgres",
+                "public"
+              ]
+            },
+            "target_columns": [
+              "id"
+            ]
+          }
+        ],
+        "name": {
+          "name": "orders",
+          "namespace": [
+            "postgres",
+            "public"
+          ]
+        },
+        "primary_key": [
+          "id"
+        ]
+      },
+      {
+        "columns": [
+          {
+            "kind": "integer",
+            "name": "id",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "kind": "text",
+            "name": "name",
+            "nullable": false,
+            "type": "text"
+          },
+          {
+            "kind": "other",
+            "name": "embedding",
+            "nullable": true,
+            "type": "public.vector(3)"
+          }
+        ],
+        "foreign_keys": [],
+        "name": {
+          "name": "product",
+          "namespace": [
+            "postgres",
+            "public"
+          ]
+        },
+        "primary_key": [
+          "id"
+        ]
+      }
+    ]
+  },
+  "fingerprint": "sha256:e4ab210cd27ffa9d80067954f7bc25b4cc242557fa1ff5ba524630dd26761de6",
+  "format": 1
+}

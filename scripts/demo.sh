@@ -107,30 +107,34 @@ run() {
         --env GITHUB_RUN_ID="$RANDOM" --secret-file "$secrets"
 }
 
-run workflow_dispatch datadouble-shop-build.yml manual.json
-run workflow_dispatch datadouble-shop-promote.yml manual.json
-run workflow_dispatch datadouble-shop-fetch.yml manual.json
-run pull_request datadouble-shop-provision.yml opened.json
-
 copies() {
     docker run --rm --user 999:999 --volume "$base:$base" --volume "$PWD:$PWD" --workdir "$PWD" \
-        "$image" copies --spec datadouble/shop.yml
+        "$image" copies --spec "datadouble/$1.yml"
 }
 expect() {
     local listed
-    listed=$(copies)
+    listed=$(copies "$1")
     echo "$listed"
-    if ! grep -q "^copies: $1 copies recorded" <<< "$listed"; then
-        echo "expected $1 copies" >&2
+    if ! grep -q "^copies: $2 copies recorded" <<< "$listed"; then
+        echo "expected $2 copies of $1" >&2
         exit 1
     fi
 }
 
-step "The copy pull request 1 got"
-expect 1
-run pull_request datadouble-shop-release.yml closed.json
-step "Released when it closed"
-expect 0
-run workflow_dispatch datadouble-shop-prune-production.yml manual.json
-run workflow_dispatch datadouble-shop-prune-non-production.yml manual.json
+# Each size of the copy is its own spec, with its own lock and its own
+# workflows: shop.yml, and shop-micro.yml, which extends it with five
+# customers instead of fifty. The same jobs run for each.
+for spec in shop shop-micro; do
+    run workflow_dispatch "datadouble-$spec-build.yml" manual.json
+    run workflow_dispatch "datadouble-$spec-promote.yml" manual.json
+    run workflow_dispatch "datadouble-$spec-fetch.yml" manual.json
+    run pull_request "datadouble-$spec-provision.yml" opened.json
+    step "The $spec copy pull request 1 got"
+    expect "$spec" 1
+    run pull_request "datadouble-$spec-release.yml" closed.json
+    step "Released when it closed"
+    expect "$spec" 0
+    run workflow_dispatch "datadouble-$spec-prune-production.yml" manual.json
+    run workflow_dispatch "datadouble-$spec-prune-non-production.yml" manual.json
+done
 step "Done: every job ran green"
